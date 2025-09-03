@@ -1,5 +1,6 @@
 package com.feirinha.api.controllers;
 
+import com.feirinha.api.services.ItemsService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/items")
 public class ItemsController {
+
+  final ItemsService itemsService;
+
+  ItemsController(ItemsService itemsService) {
+    this.itemsService = itemsService;
+  }
 
   @GetMapping()
   public String getItems() {
