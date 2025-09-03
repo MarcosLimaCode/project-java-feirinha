@@ -1,6 +1,12 @@
 package com.feirinha.api.controllers;
 
+import com.feirinha.api.dtos.ItemsDTO;
+import com.feirinha.api.models.ItemModel;
 import com.feirinha.api.services.ItemsService;
+import jakarta.validation.Valid;
+import java.util.Optional;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,29 +27,43 @@ public class ItemsController {
   }
 
   @GetMapping()
-  public String getItems() {
-    return "Frutas";
+  public ResponseEntity<Object> getItems() {
+    return ResponseEntity.status(HttpStatus.OK).body(itemsService.getItems());
   }
 
   @GetMapping("/{id}")
-  public String getItemsById(@PathVariable("id") Long id) {
-    return "Fruta no id" + id;
+  public ResponseEntity<Object> getItemsById(@PathVariable("id") Long id) {
+    Optional<ItemModel> item = itemsService.getItemsById(id);
+
+    return ResponseEntity.status(HttpStatus.OK).body(item);
   }
 
   @PostMapping()
-  public String postItems(@RequestBody String body) {
-    return body;
+  public ResponseEntity<Object> createItem(@RequestBody @Valid ItemsDTO body) {
+    Optional<ItemModel> item = itemsService.createItem(body);
+
+    if (!item.isPresent()) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("Item já cadastrado.");
+    }
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(item.get());
   }
 
   @PutMapping("/{id}")
-  public String putItems(@PathVariable("id") Long id, @RequestBody String body) {
+  public ResponseEntity<Object> putItem(@PathVariable Long id, @RequestBody @Valid ItemsDTO body) {
 
-    return body;
+    Optional<ItemModel> item = itemsService.putItem(id, body);
+
+    if (!item.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item não encontrado.");
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(item.get());
   }
 
   @DeleteMapping("/{id}")
-  public String deleteItems(@PathVariable("id") Long id) {
-
-    return "Item deletado: " + id;
+  public ResponseEntity<Object> deleteItem(@PathVariable Long id) {
+    itemsService.deleteItem(id);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }
