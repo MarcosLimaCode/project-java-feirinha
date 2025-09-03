@@ -56,14 +56,15 @@ public class ItemsController {
   @PutMapping("/{id}")
   public ResponseEntity<Object> putItem(@PathVariable Long id, @RequestBody @Valid ItemsDTO body) {
 
+    boolean name = itemsService.checkName(body);
     Optional<ItemModel> item = itemsService.putItem(id, body);
 
-    if (item.get() == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item não encontrado.");
+    if (name == true) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("Item já cadastrado.");
     }
 
     if (!item.isPresent()) {
-      return ResponseEntity.status(HttpStatus.CONFLICT).body("Item já cadastrado.");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item já cadastrado.");
     }
 
     return ResponseEntity.status(HttpStatus.OK).body(item.get());
@@ -71,7 +72,8 @@ public class ItemsController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Object> deleteItem(@PathVariable Long id) {
-    Optional<ItemModel> item = itemsService.deleteItem(id);
+    Optional<Object> item = itemsService.deleteItem(id);
+
     if (!item.isPresent()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item não encontrado.");
     }

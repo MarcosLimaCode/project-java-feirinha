@@ -44,13 +44,9 @@ public class ItemsService {
 
   public Optional<ItemModel> putItem(Long id, ItemsDTO body) {
 
-    Optional<ItemModel> item = itemsRepository.findById(id);
+    Optional<ItemModel> itemId = itemsRepository.findById(id);
 
-    if (!item.isPresent()) {
-      return Optional.of(null);
-    }
-
-    if (itemsRepository.existsByName(body.getName())) {
+    if (!itemId.isPresent()) {
       return Optional.empty();
     }
 
@@ -61,14 +57,25 @@ public class ItemsService {
     return Optional.of(newItem);
   }
 
-  public Optional<ItemModel> deleteItem(Long id) {
+  public boolean checkName(ItemsDTO body) {
+
+    boolean itemName = itemsRepository.existsByName(body.getName());
+
+    if (itemName) {
+      return true;
+    }
+
+    return false;
+  }
+
+  public Optional<Object> deleteItem(Long id) {
 
     Optional<ItemModel> items = itemsRepository.findById(id);
 
-    if (items.isPresent()) {
-      itemsRepository.deleteById(id);
+    if (!items.isPresent()) {
+      return Optional.empty();
     }
-
-    return Optional.empty();
+    itemsRepository.deleteById(id);
+    return Optional.of(true);
   }
 }
