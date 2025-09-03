@@ -35,6 +35,10 @@ public class ItemsController {
   public ResponseEntity<Object> getItemsById(@PathVariable("id") Long id) {
     Optional<ItemModel> item = itemsService.getItemsById(id);
 
+    if (!item.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item não encontrado.");
+    }
+
     return ResponseEntity.status(HttpStatus.OK).body(item);
   }
 
@@ -54,8 +58,12 @@ public class ItemsController {
 
     Optional<ItemModel> item = itemsService.putItem(id, body);
 
-    if (!item.isPresent()) {
+    if (item.get() == null) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item não encontrado.");
+    }
+
+    if (!item.isPresent()) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("Item já cadastrado.");
     }
 
     return ResponseEntity.status(HttpStatus.OK).body(item.get());
@@ -63,7 +71,10 @@ public class ItemsController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Object> deleteItem(@PathVariable Long id) {
-    itemsService.deleteItem(id);
+    Optional<ItemModel> item = itemsService.deleteItem(id);
+    if (!item.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item não encontrado.");
+    }
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }
